@@ -1,38 +1,66 @@
 package com.sudhirt.practice.security.keycloak.controller;
 
-import com.sudhirt.practice.security.keycloak.constant.Gender;
-import com.sudhirt.practice.security.keycloak.dto.User;
+import com.sudhirt.practice.security.keycloak.entity.User;
+import com.sudhirt.practice.security.keycloak.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@Validated
 public class UserController {
 
+	private UserService userService;
+
+	UserController(UserService userService) {
+		this.userService = userService;
+	}
+
 	@GetMapping("/")
-	@PreAuthorize("hasAnyAuthority('user')")
+	@PreAuthorize("hasAnyAuthority('user', 'admin')")
 	public List<User> getUsers() {
-		List<User> users = new ArrayList<>();
-		User user1 = User.builder()
-				.firstName("First User")
-				.lastName("Last User")
-				.gender(Gender.MALE)
-				.dateOfBirth(LocalDate.of(1972, 1, 1))
-				.build();
-		User user2 = User.builder()
-				.firstName("Second User")
-				.lastName("Second User")
-				.gender(Gender.FEMALE)
-				.dateOfBirth(LocalDate.of(1982, 11, 7))
-				.build();
-		users.add(user1);
-		users.add(user2);
-		return users;
+		return userService.getAll();
+	}
+
+	@GetMapping("/{id}")
+	@PreAuthorize("hasAnyAuthority('user', 'admin')")
+	public User getUserById(@PathVariable Long id) {
+		return userService.getUser(id);
+	}
+
+	@PostMapping("/")
+	@ResponseStatus(HttpStatus.CREATED)
+	@PreAuthorize("hasAnyAuthority('admin')")
+	public User addUser(@RequestBody @Valid User user) {
+		Long userId = userService.addUser(user);
+		return User.builder().id(userId).build();
+	}
+
+	@PostMapping("/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@PreAuthorize("hasAnyAuthority('admin')")
+	public void updateUser(@PathVariable Long id, @RequestBody @Valid User user) {
+		user.setId(id);
+		userService.updateUser(user);
+	}
+
+	@PatchMapping("/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@PreAuthorize("hasAnyAuthority('admin')")
+	public void patchUser(@PathVariable Long id, @RequestBody User user) {
+		user.setId(id);
+		userService.patchUser(user);
+	}
+
+	@DeleteMapping("/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@PreAuthorize("hasAnyAuthority('admin')")
+	public void deleteUser(@PathVariable Long id) {
+		userService.deleteUser(id);
 	}
 }

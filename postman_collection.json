@@ -21,7 +21,7 @@
 							"pm.test(\"Response has access_token\", function() {",
 							"    var jsonData = pm.response.json();",
 							"    pm.expect(jsonData).to.have.property(\"access_token\");",
-							"    pm.environment.set(\"access_token\", jsonData.access_token);",
+							"    pm.environment.set(\"user_access_token\", jsonData.access_token);",
 							"});",
 							""
 						],
@@ -91,14 +91,216 @@
 			"response": []
 		},
 		{
-			"name": "Get Users",
+			"name": "Generate access token for admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1cbdae6-8309-445c-be63-89b4ab4412a7",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has access_token\", function() {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property(\"access_token\");",
+							"    pm.environment.set(\"admin_access_token\", jsonData.access_token);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "sample-client-1",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "testadmin1",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "testadmin1",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "7e0b21b8-c5e0-404b-b907-1cf2ea357faf",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/auth/realms/sample-app-1/protocol/openid-connect/token",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"auth",
+						"realms",
+						"sample-app-1",
+						"protocol",
+						"openid-connect",
+						"token"
+					]
+				},
+				"description": "Generates access token for user by authenticating with keycloak server"
+			},
+			"response": []
+		},
+		{
+			"name": "Create user with admin token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4c650199-c1b9-45e2-b0c6-508f7c1bad58",
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Response has id\", function() {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property(\"id\");",
+							"    pm.environment.set(\"user_id\", jsonData.id);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"auth": {
 					"type": "bearer",
 					"bearer": [
 						{
 							"key": "token",
-							"value": "{{access_token}}",
+							"value": "{{admin_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstName\": \"First Name\",\n\t\"lastName\": \"Last Name\",\n\t\"dateOfBirth\": \"1972-01-01\",\n\t\"gender\": \"MALE\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8081/users/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"users",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create user with user token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4c650199-c1b9-45e2-b0c6-508f7c1bad58",
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {",
+							"    pm.response.to.have.status(403);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{user_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstName\": \"First Name\",\n\t\"lastName\": \"Last Name\",\n\t\"dateOfBirth\": \"1972-01-01\",\n\t\"gender\": \"MALE\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8081/users/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"users",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get users with user token",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{user_access_token}}",
 							"type": "string"
 						}
 					]
@@ -115,6 +317,623 @@
 					"path": [
 						"users",
 						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get users with admin token",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/users/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"users",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get user with user token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9fe9c9bd-39e2-4cc5-a4ad-21659c9ce572",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"First name is correct\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.firstName).to.eql(\"First Name\");",
+							"});",
+							"",
+							"pm.test(\"Last name is correct\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.lastName).to.eql(\"Last Name\");",
+							"});",
+							"",
+							"pm.test(\"Gender is correct\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.gender).to.eql(\"MALE\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{user_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/users/{{user_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"users",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get user with admin token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9fe9c9bd-39e2-4cc5-a4ad-21659c9ce572",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"First name is correct\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.firstName).to.eql(\"First Name\");",
+							"});",
+							"",
+							"pm.test(\"Last name is correct\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.lastName).to.eql(\"Last Name\");",
+							"});",
+							"",
+							"pm.test(\"Gender is correct\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.gender).to.eql(\"MALE\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/users/{{user_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"users",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update user with user token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4c650199-c1b9-45e2-b0c6-508f7c1bad58",
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {",
+							"    pm.response.to.have.status(403);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{user_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstName\": \"First Name\",\n\t\"lastName\": \"Last Name\",\n\t\"dateOfBirth\": \"1972-01-01\",\n\t\"gender\": \"MALE\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8081/users/{{user_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"users",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update user with admin token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4c650199-c1b9-45e2-b0c6-508f7c1bad58",
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstName\": \"First Name 1\",\n\t\"lastName\": \"Last Name 1\",\n\t\"dateOfBirth\": \"1976-01-01\",\n\t\"gender\": \"FEMALE\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8081/users/{{user_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"users",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify user update is successful",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9fe9c9bd-39e2-4cc5-a4ad-21659c9ce572",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"First name is correct\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.firstName).to.eql(\"First Name 1\");",
+							"});",
+							"",
+							"pm.test(\"Last name is correct\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.lastName).to.eql(\"Last Name 1\");",
+							"});",
+							"",
+							"pm.test(\"Gender is correct\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.gender).to.eql(\"FEMALE\");",
+							"});",
+							"",
+							"pm.test(\"Date of birth is correct\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.dateOfBirth).to.eql(\"1976-01-01\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{user_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/users/{{user_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"users",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch user with user token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4c650199-c1b9-45e2-b0c6-508f7c1bad58",
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {",
+							"    pm.response.to.have.status(403);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{user_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstName\": \"First Name 2\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8081/users/{{user_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"users",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch user with admin token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4c650199-c1b9-45e2-b0c6-508f7c1bad58",
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstName\": \"First Name 2\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8081/users/{{user_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"users",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify user patch is successful",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9fe9c9bd-39e2-4cc5-a4ad-21659c9ce572",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"First name is correct\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.firstName).to.eql(\"First Name 2\");",
+							"});",
+							"",
+							"pm.test(\"Last name is correct\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.lastName).to.eql(\"Last Name 1\");",
+							"});",
+							"",
+							"pm.test(\"Gender is correct\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.gender).to.eql(\"FEMALE\");",
+							"});",
+							"",
+							"pm.test(\"Date of birth is correct\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.dateOfBirth).to.eql(\"1976-01-01\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{user_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/users/{{user_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"users",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete user with user token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4c650199-c1b9-45e2-b0c6-508f7c1bad58",
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {",
+							"    pm.response.to.have.status(403);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{user_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstName\": \"First Name\",\n\t\"lastName\": \"Last Name\",\n\t\"dateOfBirth\": \"1972-01-01\",\n\t\"gender\": \"MALE\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8081/users/{{user_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"users",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete user with admin token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4c650199-c1b9-45e2-b0c6-508f7c1bad58",
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {",
+							"    pm.response.to.have.status(204);",
+							"    pm.environment.unset(\"user_id\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstName\": \"First Name\",\n\t\"lastName\": \"Last Name\",\n\t\"dateOfBirth\": \"1972-01-01\",\n\t\"gender\": \"MALE\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8081/users/{{user_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"users",
+						"{{user_id}}"
 					]
 				}
 			},
