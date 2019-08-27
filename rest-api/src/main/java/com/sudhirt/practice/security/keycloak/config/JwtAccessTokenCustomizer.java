@@ -23,7 +23,7 @@ import java.util.Set;
 public class JwtAccessTokenCustomizer extends DefaultAccessTokenConverter implements JwtAccessTokenConverterConfigurer {
 
 	private static final String JWT_CLIENT_NAME_ELEMENT = "resource_access";
-	private final String RESOURCE_ROLES_JSON_POINTER;
+	private final String resourceRolesJsonPointer;
 
 	private ObjectMapper objectMapper;
 	private String resourceId;
@@ -31,7 +31,7 @@ public class JwtAccessTokenCustomizer extends DefaultAccessTokenConverter implem
 	public JwtAccessTokenCustomizer(ObjectMapper objectMapper, String resourceId) {
 		this.objectMapper = objectMapper;
 		this.resourceId = resourceId;
-		RESOURCE_ROLES_JSON_POINTER = "/" + JWT_CLIENT_NAME_ELEMENT + "/" + resourceId + "/roles";
+		resourceRolesJsonPointer = "/" + JWT_CLIENT_NAME_ELEMENT + "/" + resourceId + "/roles";
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public class JwtAccessTokenCustomizer extends DefaultAccessTokenConverter implem
 		validateTokenMap(tokenMap);
 		JsonNode node = objectMapper.convertValue(tokenMap, JsonNode.class);
 		Set<String> roles = new HashSet<>();
-		node.at(RESOURCE_ROLES_JSON_POINTER).elements().forEachRemaining(e -> roles.add(e.asText()));
+		node.at(resourceRolesJsonPointer).elements().forEachRemaining(e -> roles.add(e.asText()));
 		return AuthorityUtils.createAuthorityList(roles.toArray(new String[0]));
 	}
 
