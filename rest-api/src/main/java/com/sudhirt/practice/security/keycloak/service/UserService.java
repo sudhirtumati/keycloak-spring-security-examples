@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 @Service
@@ -55,7 +54,7 @@ public class UserService {
 
 	public List<User> getAll() {
 		List<User> users = new ArrayList<>();
-		userRepository.findAll().forEach(user -> users.add(user));
+		userRepository.findAll().forEach(users::add);
 		return users;
 	}
 
