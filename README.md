@@ -12,11 +12,13 @@ You may choose to run Keycloak as a standalone installation or as a docker conta
 * [Docker compose file](https://github.com/jboss-dockerfiles/keycloak).  
   
 Perform below steps once Keycloak is up and running    
-* Create a new realm. In this example realm is named as `sample-app-1` * Create 2 users   
+* Create a new realm. In this example realm is named as `sample-app-1` 
+* Create 2 users   
    * User1 with `user` role  
    * User2 with `admin` role  
   
 Refer to [this](https://www.baeldung.com/spring-boot-keycloak) example for Keycloak setup  
   
 # Modules  
-**rest-api** - demonstrates the ability to secure rest api
+* **rest-api** - demonstrates OAuth2 [authorization code grant](https://oauth.net/2/grant-types/authorization-code/)
+* **webapp** - demonstrates OAuth2 [implicit grant](https://oauth.net/2/grant-types/implicit/)
