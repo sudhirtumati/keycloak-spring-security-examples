@@ -37,33 +37,47 @@ public class UserControllerTest {
 
 	@Test
 	@WithMockUser(authorities = {"user"})
-	public void get_should_return_users_with_user_role() throws Exception {
+	public void get_with_user_role_should_return_users() throws Exception {
 		mockMvc.perform(get("/users").accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk());
 	}
 
 	@Test
-	public void get_should_return_unauthorized_error_with_no_role() throws Exception {
+	public void get_with_no_role_should_return_unauthorized_error() throws Exception {
 		mockMvc.perform(get("/users").accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isUnauthorized());
 	}
 
 	@Test
 	@WithMockUser(authorities = {"admin"})
-	public void get_should_return_users_with_admin_role() throws Exception {
+	public void get_with_admin_role_should_return_users() throws Exception {
 		mockMvc.perform(get("/users").accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk());
 	}
 
 	@Test
+	@WithMockUser(authorities = {"user"})
+	public void delete_with_user_role_should_throw_403_error() throws Exception {
+		mockMvc.perform(delete("/users/1").accept(MediaType.APPLICATION_JSON).with(csrf()))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
 	@WithMockUser(authorities = {"admin"})
-	public void delete_should_delete_user_with_admin_role() throws Exception {
+	public void delete_with_admin_role_should_delete_user() throws Exception {
 		mockMvc.perform(delete("/users/1").accept(MediaType.APPLICATION_JSON).with(csrf()))
 				.andExpect(status().isNoContent());
 	}
 
 	@Test
-	public void delete_should_return_unauthorized_user_with_no_role() throws Exception {
+	@WithMockUser(authorities = {"admin"})
+	public void delete_with_admin_role_should_throw_404_error_when_user_not_found() throws Exception {
+		mockMvc.perform(delete("/users/15").accept(MediaType.APPLICATION_JSON).with(csrf()))
+				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	public void delete_with_no_role_should_throw_401_error() throws Exception {
 		mockMvc.perform(get("/users/1").accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isUnauthorized());
 	}
