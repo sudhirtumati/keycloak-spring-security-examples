@@ -8,11 +8,10 @@ Sample application to demonstrate security rest api with spring security and Key
 ```  
 mvn clean test  
 ```  
-> **Note:** OAuth resource server configuration mock will be used for unit tests.  
-  
-## Integration tests (Using postman)
-### Prerequisites
+# Running the application
+## Prerequisites
 * [Keycloak](https://www.keycloak.org/) running on port 8080 
-* This application running on port 8081
-
-Import [postman collection](./postman_collection.json) and run. You can use either [postman](https://getpostman.com) or [newman](https://github.com/postmanlabs/newman) for this.
+* This application running on port 8082
+```
+http://localhost:8082/app/users
+```
