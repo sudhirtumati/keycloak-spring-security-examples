@@ -1,4 +1,4 @@
-Sample application to demonstrate securing spring mvc web application with spring security and Keycloak    
+Sample application to demonstrate OAuth2.0 implicit grant type    
   
 # Running the tests  
 ## Unit tests
