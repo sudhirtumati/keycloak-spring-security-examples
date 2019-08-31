@@ -6,9 +6,12 @@ Sample application to demonstrate securing spring mvc web application with sprin
 mvn clean test  
 ```  
   
-## Integration tests (Using postman)
+## Run the application
 ### Prerequisites
 * [Keycloak](https://www.keycloak.org/) running on port 8080 
 * This application running on port 8082
 
-Import [postman collection](./postman_collection.json) and run. You can use either [postman](https://getpostman.com) or [newman](https://github.com/postmanlabs/newman) for this.
+### Test authentication flow
+* Open browser and access http://localhost:8082/users
+* You will be redirected to Keycloak login page
+* After authenticating with valid credentials, you will be redirected back to the application and users will be displayed
