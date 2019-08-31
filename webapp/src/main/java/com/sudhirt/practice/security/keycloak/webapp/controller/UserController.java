@@ -29,14 +29,14 @@ public class UserController {
 
 	@GetMapping
 	@PreAuthorize("hasAnyAuthority('user', 'admin')")
-	String getAll(Model model) {
+	public String getAll(Model model) {
 		model.addAttribute("users", users.values());
 		return "users";
 	}
 
 	@DeleteMapping("/{id}")
 	@PreAuthorize("hasAuthority('admin')")
-	ResponseEntity delete(@PathVariable Long id) {
+	public ResponseEntity delete(@PathVariable Long id) {
 		User user = users.remove(id);
 		if (user == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
